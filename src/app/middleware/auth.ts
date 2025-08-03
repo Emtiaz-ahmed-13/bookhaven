@@ -1,12 +1,17 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../errors/ApiError";
-import { jwtHelpers } from "../../helpers/jwtHelpers";
+import { jwtHelpers, TokenPayload } from "../../helpers/jwtHelpers";
 import config from "../../config";
 import { Secret } from "jsonwebtoken";
 
+// Extend Request interface to include user property
+interface AuthenticatedRequest extends Request {
+  user?: TokenPayload;
+}
+
 const auth = (...roles: string[]) => {
   return async (
-    req: Request & { user?: any },
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -29,8 +34,15 @@ const auth = (...roles: string[]) => {
 
       req.user = verifiedUser;
 
-      if (roles.length && !roles.includes(verifiedUser.role))
+      // Check roles if any are specified and if user has a role
+      if (roles.length && verifiedUser.role && !roles.includes(verifiedUser.role)) {
         throw new ApiError(403, "Forbidden");
+      }
+
+      // If roles are specified but user has no role, deny access
+      if (roles.length && !verifiedUser.role) {
+        throw new ApiError(403, "Access denied: No role assigned");
+      }
 
       next();
     } catch (error) {
@@ -40,3 +52,4 @@ const auth = (...roles: string[]) => {
 };
 
 export default auth;
+export type { AuthenticatedRequest };
