@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import ApiError from "../errors/ApiError";
 import { jwtHelpers } from "../../helpers/jwtHelpers";
 import config from "../../config";
-import { Secret } from "jsonwebtoken";
 
 const auth = (...roles: string[]) => {
   return async (
@@ -24,7 +23,7 @@ const auth = (...roles: string[]) => {
 
       const verifiedUser = jwtHelpers.verifyToken(
         tokenWithoutBearer,
-        config.jwt.jwt_secret as Secret
+        config.jwt.jwt_secret as string
       );
 
       req.user = verifiedUser;
