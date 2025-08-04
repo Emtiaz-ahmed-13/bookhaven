@@ -9,6 +9,7 @@ export const createBook = async (payload: {
   description: string;
   quantity: number;
   inStock: boolean;
+  photo: string;
 }) => {
   const book = await prisma.book.create({
     data: payload,
@@ -55,6 +56,7 @@ export const updateBook = async (
     description: string;
     quantity: number;
     inStock: boolean;
+    photo: string;
   }>
 ) => {
   const book = await prisma.book.update({

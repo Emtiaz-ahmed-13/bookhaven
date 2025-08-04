@@ -45,9 +45,11 @@ model Book {
   description String
   quantity    Int
   inStock     Boolean
+  photo       String   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
 
 model Order {
   id         String   @id @default(uuid())

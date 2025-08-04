@@ -4,32 +4,25 @@ import config from "../../../config";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import { createUser, findUserByEmail } from "../../../helpers/userHelpers";
 import ApiError from "../../errors/ApiError";
-import { TRegister } from "./auth.contants";
-
-type TLogin = {
-  email: string;
-  password: string;
-};
+import { TLogin, TRegister } from "./auth.contants";
 
 const login = async (payload: TLogin) => {
   const { email, password } = payload;
 
   const user = await findUserByEmail(email);
+  if (!user) throw new ApiError(404, "User not found");
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
-
   if (!isPasswordValid) throw new ApiError(401, "Invalid Credentials.");
 
-  const { password: _, ...userWithoutPassword } = user;
-
   const accessToken = jwtHelpers.generateToken(
-    userWithoutPassword,
+    { id: user.id, role: user.role },
     config.jwt.jwt_secret as Secret,
     config.jwt.expires_in as string
   );
 
   const refreshToken = jwtHelpers.generateToken(
-    userWithoutPassword,
+    { id: user.id, role: user.role },
     config.jwt.refresh_token_secret as Secret,
     config.jwt.refresh_token_expires_in as string
   );
@@ -37,7 +30,6 @@ const login = async (payload: TLogin) => {
   return {
     accessToken,
     refreshToken,
-    userWithoutPassword,
   };
 };
 
