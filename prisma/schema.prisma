@@ -9,15 +9,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id String @id @default(uuid())
-  name       String
-  email String @unique
-  password String
-
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
- 
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("user") 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("users")
+}
+
+enum Category {
+  Fiction
+  Science
+  Poetry
+  Religious
+  chess
+  history
+  politics
+  philosophy
+  economics
+  psychology
+  sociology
+  biology
+ 
+}
+
+model Book {
+  id          String   @id @default(uuid())
+  title       String
+  author      String
+  price       Float
+  category    Category
+  description String
+  quantity    Int
+  inStock     Boolean
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id         String   @id @default(uuid())
+  email      String
+  product    String   // Book id (uuid)
+  quantity   Int
+  totalPrice Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 

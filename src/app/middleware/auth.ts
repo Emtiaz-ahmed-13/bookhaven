@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import ApiError from "../errors/ApiError";
-import { jwtHelpers } from "../../helpers/jwtHelpers";
-import config from "../../config";
 import { Secret } from "jsonwebtoken";
+import config from "../../config";
+import { jwtHelpers } from "../../helpers/jwtHelpers";
+import ApiError from "../errors/ApiError";
 
 const auth = (...roles: string[]) => {
   return async (
@@ -29,7 +29,7 @@ const auth = (...roles: string[]) => {
 
       req.user = verifiedUser;
 
-      if (roles.length && !roles.includes(verifiedUser.role))
+      if (roles.length && !roles.includes((verifiedUser as any).role))
         throw new ApiError(403, "Forbidden");
 
       next();

@@ -1,10 +1,10 @@
+import bcrypt from "bcrypt";
 import { Secret } from "jsonwebtoken";
 import config from "../../../config";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
-import { findUserByEmail } from "../../../helpers/userHelpers";
+import { createUser, findUserByEmail } from "../../../helpers/userHelpers";
 import ApiError from "../../errors/ApiError";
-import prisma from "../../shared/prisma";
-import bcrypt from "bcrypt";
+import { TRegister } from "./auth.contants";
 
 type TLogin = {
   email: string;
@@ -12,10 +12,6 @@ type TLogin = {
 };
 
 const login = async (payload: TLogin) => {
-  // find user
-  // check whether password correct
-  // generate access and refresh token
-  // return data
   const { email, password } = payload;
 
   const user = await findUserByEmail(email);
@@ -45,6 +41,21 @@ const login = async (payload: TLogin) => {
   };
 };
 
+const register = async (payload: TRegister) => {
+  const { email } = payload;
+
+  try {
+    await findUserByEmail(email);
+    throw new ApiError(409, "User already exists with this email.");
+  } catch (err: any) {
+    if (err.statusCode !== 404) throw err;
+  }
+  const user = await createUser(payload);
+  const { password: _, ...userWithoutPassword } = user;
+  return userWithoutPassword;
+};
+
 export const AuthServices = {
   login,
+  register,
 };
