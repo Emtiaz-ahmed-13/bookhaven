@@ -34,14 +34,22 @@ export const getBookByIdController = catchAsync(
 
 export const getAllBooksController = catchAsync(
   async (req: Request, res: Response) => {
-    const { searchTerm } = req.query;
-    const books = await getAllBooks(searchTerm as string | undefined);
+    const { q, category, minPrice, maxPrice, page, limit } = req.query as Record<string, string | undefined>;
+    const result = await getAllBooks({
+      searchTerm: q,
+      category,
+      minPrice: minPrice ? Number(minPrice) : undefined,
+      maxPrice: maxPrice ? Number(maxPrice) : undefined,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    });
     sendResponse(res, {
       statusCode: 200,
       success: true,
       message: "Books retrieved successfully",
-      data: books,
-    });
+      data: result.data,
+      meta: result.meta,
+    } as any);
   }
 );
 
